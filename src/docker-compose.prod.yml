@@ -46,7 +46,7 @@ services:
       - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
       - UseCustomizationData=True
       - AzureServiceBusEnabled=False
-      - AzureStorageEnabled=False
+      - AzureStorageEnabled=True
       - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
       - OrchestratorType=${ORCHESTRATOR_TYPE}
     ports:
