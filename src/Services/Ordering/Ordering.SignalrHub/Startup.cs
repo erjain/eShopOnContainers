@@ -25,6 +25,14 @@ public class Startup
                     .AllowCredentials());
             });
 
+        // Register event handlers.
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToAwaitingValidationIntegrationEvent>, OrderStatusChangedToAwaitingValidationIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToCancelledIntegrationEvent>, OrderStatusChangedToCancelledIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>, OrderStatusChangedToPaidIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToShippedIntegrationEvent>, OrderStatusChangedToShippedIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToStockConfirmedIntegrationEvent>, OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+        services.AddSingleton<IIntegrationEventHandler<OrderStatusChangedToSubmittedIntegrationEvent>, OrderStatusChangedToSubmittedIntegrationEventHandler>();
+
         if (Configuration.GetValue<string>("IsClusterEnv") == bool.TrueString)
         {
             services
@@ -86,12 +94,7 @@ public class Startup
 
         services.AddOptions();
 
-        //configure autofac
-        var container = new ContainerBuilder();
-        container.RegisterModule(new ApplicationModule());
-        container.Populate(services);
-
-        return new AutofacServiceProvider(container.Build());
+        return services.BuildServiceProvider();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -189,13 +192,12 @@ public class Startup
             services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
             {
                 var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                 var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                 string subscriptionName = Configuration["SubscriptionClientName"];
 
                 return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                    eventBusSubcriptionsManager, iLifetimeScope, subscriptionName);
+                    eventBusSubcriptionsManager, sp, subscriptionName);
             });
         }
         else
