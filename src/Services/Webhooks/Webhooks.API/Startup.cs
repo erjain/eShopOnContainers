@@ -27,9 +27,7 @@ public class Startup
             .AddTransient<IWebhooksRetriever, WebhooksRetriever>()
             .AddTransient<IWebhooksSender, WebhooksSender>();
 
-        var container = new ContainerBuilder();
-        container.Populate(services);
-        return new AutofacServiceProvider(container.Build());
+        return services.BuildServiceProvider();
     }
 
     public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
@@ -174,13 +172,12 @@ internal static class CustomExtensionMethods
             services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
             {
                 var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                 var eventBusSubscriptionManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                 string subscriptionName = configuration["SubscriptionClientName"];
 
                 return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                    eventBusSubscriptionManager, iLifetimeScope, subscriptionName);
+                    eventBusSubscriptionManager, sp, subscriptionName);
             });
 
         }

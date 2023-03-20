@@ -9,7 +9,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
     private readonly IRabbitMQPersistentConnection _persistentConnection;
     private readonly ILogger<EventBusRabbitMQ> _logger;
     private readonly IEventBusSubscriptionsManager _subsManager;
-    private readonly IServiceProvider _autofac;
+    private readonly IServiceProvider _serviceProvider;
     private readonly int _retryCount;
 
     private IModel _consumerChannel;
@@ -23,7 +23,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
         _subsManager = subsManager ?? new InMemoryEventBusSubscriptionsManager();
         _queueName = queueName;
         _consumerChannel = CreateConsumerChannel();
-        _autofac = autofac;
+        _serviceProvider = autofac;
         _retryCount = retryCount;
         _subsManager.OnEventRemoved += SubsManager_OnEventRemoved;
     }
@@ -241,7 +241,7 @@ public class EventBusRabbitMQ : IEventBus, IDisposable
 
         if (_subsManager.HasSubscriptionsForEvent(eventName))
         {
-            using var scope = _autofac.CreateScope();
+            await using var scope = _serviceProvider.CreateAsyncScope();
             var subscriptions = _subsManager.GetHandlersForEvent(eventName);
             foreach (var subscription in subscriptions)
             {

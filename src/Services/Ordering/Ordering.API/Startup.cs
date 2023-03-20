@@ -332,13 +332,12 @@ static class CustomExtensionsMethods
             services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
             {
                 var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                 var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                 string subscriptionName = configuration["SubscriptionClientName"];
 
                 return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                    eventBusSubcriptionsManager, iLifetimeScope, subscriptionName);
+                    eventBusSubcriptionsManager, sp, subscriptionName);
             });
         }
         else

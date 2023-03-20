@@ -244,13 +244,12 @@ public class Startup
             services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
             {
                 var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                 var eventBusSubscriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                 string subscriptionName = Configuration["SubscriptionClientName"];
 
                 return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                    eventBusSubscriptionsManager, iLifetimeScope, subscriptionName);
+                    eventBusSubscriptionsManager, sp, subscriptionName);
             });
         }
         else

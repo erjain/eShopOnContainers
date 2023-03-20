@@ -60,12 +60,11 @@ namespace Ordering.BackgroundTasks.Extensions
                 services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
                 {
                     var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                     var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                     var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                     string subscriptionName = configuration["SubscriptionClientName"];
 
-                    return new EventBusServiceBus(serviceBusPersisterConnection, logger, eventBusSubcriptionsManager, iLifetimeScope, subscriptionName);
+                    return new EventBusServiceBus(serviceBusPersisterConnection, logger, eventBusSubcriptionsManager, sp, subscriptionName);
                 });
             }
             else

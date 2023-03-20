@@ -1,7 +1,4 @@
-﻿using Autofac.Core;
-using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.FileProviders;
 var appName = "Catalog.API";
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
     Args = args,
@@ -302,13 +299,12 @@ public static class CustomExtensionMethods {
         if (configuration.GetValue<bool>("AzureServiceBusEnabled")) {
             services.AddSingleton<IEventBus, EventBusServiceBus>(sp => {
                 var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
                 var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
                 string subscriptionName = configuration["SubscriptionClientName"];
 
                 return new EventBusServiceBus(serviceBusPersisterConnection, logger,
-                    eventBusSubcriptionsManager, iLifetimeScope, subscriptionName);
+                    eventBusSubcriptionsManager, sp, subscriptionName);
             });
 
         }
@@ -316,7 +312,6 @@ public static class CustomExtensionMethods {
             services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp => {
                 var subscriptionClientName = configuration["SubscriptionClientName"];
                 var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                //var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
                 var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
 
