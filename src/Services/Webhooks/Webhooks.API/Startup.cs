@@ -190,7 +190,6 @@ internal static class CustomExtensionMethods
             {
                 var subscriptionClientName = configuration["SubscriptionClientName"];
                 var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
                 var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
                 var eventBusSubscriptionManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
 
@@ -200,7 +199,7 @@ internal static class CustomExtensionMethods
                     retryCount = int.Parse(configuration["EventBusRetryCount"]);
                 }
 
-                return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubscriptionManager, subscriptionClientName, retryCount);
+                return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, sp, eventBusSubscriptionManager, subscriptionClientName, retryCount);
             });
         }
 
